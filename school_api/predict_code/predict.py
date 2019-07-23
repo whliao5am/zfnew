@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import string
-from keras.models import load_model
+from tensorflow.keras.models import load_model
 import numpy as np
 import cv2
 
@@ -12,8 +12,11 @@ y_min, y_max = 0, 22  # 验证码横向切分的位置
 input_shape = (13, 22, 1)
 
 
-def img_press(image_stream):
-    gray_img = cv2.cvtColor(image_stream, cv2.COLOR_BGR2GRAY)  # 灰度化
+def img_press(image):
+    if len(image.shape) == 3:
+        gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # 灰度化
+    else:
+        gray_img = image
     ims = [gray_img[y_min:y_max, u:v + 1] for u, v in zip(split_lines[:-1], split_lines[1:])]  # 切分验证码
     return ims
 
@@ -21,7 +24,6 @@ def img_press(image_stream):
 # 图片预测函数
 def img_pridict(ims, model_path):
     name = ''
-
     model = load_model(model_path)
     for i in range(len(ims)):
         test_input = 1.0 * np.array(ims[i])  # 图片转化为矩阵
