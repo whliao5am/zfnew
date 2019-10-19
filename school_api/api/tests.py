@@ -1,4 +1,7 @@
-def get_tests(self, cookies, __VIEWSTATE):  # 获取考试信息
+# -*- coding: utf-8 -*-
+
+def get_tests(self, cookies, __VIEWSTATE):
+    """教务系统获取考试信息函数"""
     headers = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36',
         'Cookie': cookies,

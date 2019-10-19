@@ -1,117 +1,73 @@
 # -*- coding: utf-8 -*-
-
+import binascii
+import rsa
+import base64
 import requests
-from io import BytesIO
-import numpy as np
-from PIL import Image
-from school_api.predict_code import predict
-import re
+from bs4 import BeautifulSoup
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_OAEP, PKCS1_v1_5
 
 
 class Login(object):
     def __init__(self):
         self.main_url = 'http://jwc.xhu.edu.cn'
-        self.code_url = 'http://jwc.xhu.edu.cn/CheckCode.aspx'
-        self.login_url = 'http://jwc.xhu.edu.cn/default2.aspx'
-        self.model_path = 'predict_code/verification_code_model.h5'
-        self.headers = {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac '
-                          'OS X 10_14_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36'
-        }
-        self.session = requests.Session()
+        self.key_url = 'http://jwc.xhu.edu.cn/xtgl/login_getPublicKey.html'
+        self.login_url = 'http://jwc.xhu.edu.cn/xtgl/login_slogin.html'
+        self.headers_1 = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36',
+                          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3'}
+        self.headers_2 = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36',
+                          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+                          'Referer': self.login_url}
+        self.sess = requests.Session()
 
-    def get_parameter(self):
-        _ = self.session.get(self.main_url, headers=self.headers)
-        viewstate = re.search('"__VIEWSTATE" value="(.*?)"', _.text)  # 获取viewstate参数
-        # cookies = _.cookies
-        # print(cookies)
-        # cookiestr = '; '.join([item[0] + '=' + item[1] for item in cookies.items()])
-        # print(cookiestr)
-        return viewstate.group(1)
+    def login(self):
+        """登陆"""
+        req = self.sess.get(self.login_url, headers=self.headers_1)
+        soup = BeautifulSoup(req.text, 'lxml')
+        tokens = soup.find(id='csrftoken').get("value")
 
-    def get_code(self):
-        response = self.session.get(self.code_url)
-        img = Image.open(BytesIO(response.content))  # 验证码图片
-        img = np.asarray(img)  # 验证码处理为numpy
-        ims = predict.img_press(img)  # 验证码切分
-        code = predict.img_pridict(ims, self.model_path)  # 验证码预测
-        return code
+        res = self.sess.get(self.key_url, headers=self.headers_2).json()
+        n = res['modulus']
+        e = res['exponent']
+        hmm = self.get_rsa('liao787960', n, e)
 
-    def login(self, account, password):
-        data = {'__VIEWSTATE': self.get_parameter(),
-                'txtUserName': account,
-                'TextBox2': password,
-                'txtSecretCode': self.get_code(),
-                'RadioButtonList1': '学生'.encode('gb2312'),  # %D1%A7%C9%FA
-                'TextBox1': '',
-                'Button1': '',
-                'lbLanguage': '',
-                'hidPdrs': '',
-                'hidsc': ''
-                }
-        response = self.session.post(self.login_url, data=data)
-        return response
+        login_data = {'csrftoken': tokens,
+                      'yhm': '3120170807112',
+                      'mm': hmm,
+                      'mm': hmm}
+        self.sess.post(self.login_url, headers=self.headers_2, data=login_data)
 
-# import requests
-# from io import BytesIO
-# from PIL import Image
-# from xihua.predict_code.predict import CodePredicting
-#
-# from selenium import webdriver
-# from selenium.webdriver.chrome.options import Options
-# from selenium.webdriver.common.keys import Keys
-#
-#
-# class Login(object):
-#
-#     def login_page(self, url, code_url, account, password):  # 登陆教务系统函数
-#
-#         chrome_options = Options()
-#         #chrome_options.add_argument('--headless')
-#         browser = webdriver.Chrome()
-#
-#         browser.get(url)
-#         browser.implicitly_wait(10)  # 隐式等待10s
-#
-#         try:  # 检测网页加载是否完成
-#             browser.find_element_by_class_name('login_right')
-#             index = True
-#         except:
-#             index = False
-#             print('网页加载失败！')
-#
-#         if index:
-#             # 获取cookies 和 设置headers
-#             cookies = browser.get_cookies()
-#             cookie = [item["name"] + "=" + item["value"] for item in cookies]
-#             cookiestr = '; '.join(item for item in cookie)
-#
-#             headers = {
-#                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) A' \
-#                               'ppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36',
-#                 'Cookie': cookiestr,
-#                 'Host': 'jwc.xhu.edu.cn'
-#             }
-#             #  输入账号密码动作
-#             browser.find_element_by_id('txtUserName').clear()
-#             browser.find_element_by_id('txtUserName').send_keys(account, Keys.TAB, Keys.TAB, password)
-#             # 获取验证码
-#             response = requests.get(code_url, headers=headers)
-#             image = Image.open(BytesIO(response.content))
-#
-#             codepredict = CodePredicting()
-#             code = codepredict.img_denoising(image)
-#             code = codepredict.img_pridict(code)
-#             print(code)
-#
-#             # 输入验证码，登陆
-#             browser.find_element_by_id('txtSecretCode').send_keys(code)
-#             browser.find_element_by_id('Button1').click()
-#
-#             name = browser.find_element_by_xpath('//*[@id="xhxm"]').text.replace('同学', '')
-#             __VIEWSTATE = browser.find_element_by_xpath('//*[@id="Form1"]/input[3]').get_attribute('value')
-#             # browser.get('http://jwc.xhu.edu.cn/content.aspx')
-#             # __VIEWSTATE_post = browser.find_element_by_xpath('//*[@id="form1"]/input').get_attribute('value')
-#             # print(__VIEWSTATE_post)
-#
-#             return browser, cookiestr, name, headers, __VIEWSTATE
+    def get_cookies(self):
+        return self.sess.cookies
+
+    @classmethod
+    def encrypt_sqf(cls, pkey, str_in):
+        """加载公钥"""
+        privateKey = pkey
+
+        private_keybytes = base64.b64decode(privateKey)
+        prikey = RSA.importKey(private_keybytes)
+
+        signer = PKCS1_v1_5.new(prikey)
+        signature = base64.b64encode(signer.encrypt(str_in.encode("utf-8")))
+        return signature
+
+    @classmethod
+    def get_rsa(cls, pwd, n, e):
+        """对密码base64编码"""
+        message = str(pwd).encode()
+        rsa_n = binascii.b2a_hex(binascii.a2b_base64(n))
+        rsa_e = binascii.b2a_hex(binascii.a2b_base64(e))
+        key = rsa.PublicKey(int(rsa_n, 16), int(rsa_e, 16))
+        encropy_pwd = rsa.encrypt(message, key)
+        result = binascii.b2a_base64(encropy_pwd)
+        return result
+
+
+lgn = Login()
+lgn.login()
+# print(lgn.sess.post('http://jwc.xhu.edu.cn/kbcx/xskbcx_cxXsKb.html?gnmkdm=N2151', data={'xnm': '2019', 'xqm': '3'}).json())
+# print('http://jwc.xhu.edu.cn/xtgl/index_cxDbsy.html')
+# Login.get_rsa('31231', '321', '312')
+a = lgn.get_cookies()
+print()

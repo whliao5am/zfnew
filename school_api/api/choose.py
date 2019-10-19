@@ -1,4 +1,7 @@
-def choose_class(self, browser):  # 选课
+# -*- coding: utf-8 -*-
+
+def choose_class(browser):
+    """教务系统选课函数"""
     # 快速选课
     browser.execute_script('window.open()')
     browser.switch_to_window(browser.window_handles[1])
