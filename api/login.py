@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-import binascii
-import rsa
 import base64
+import binascii
+
 import requests
+import rsa
 from bs4 import BeautifulSoup
-from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP, PKCS1_v1_5
+from Crypto.PublicKey import RSA
 
 
 class Login(object):
@@ -62,12 +63,3 @@ class Login(object):
         encropy_pwd = rsa.encrypt(message, key)
         result = binascii.b2a_base64(encropy_pwd)
         return result
-
-
-lgn = Login()
-lgn.login()
-# print(lgn.sess.post('http://jwc.xhu.edu.cn/kbcx/xskbcx_cxXsKb.html?gnmkdm=N2151', data={'xnm': '2019', 'xqm': '3'}).json())
-# print('http://jwc.xhu.edu.cn/xtgl/index_cxDbsy.html')
-# Login.get_rsa('31231', '321', '312')
-a = lgn.get_cookies()
-print()
