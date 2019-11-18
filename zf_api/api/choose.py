@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-def choose_class(browser):
+def choose_course(browser):
     """教务系统选课函数"""
     # 快速选课
     browser.execute_script('window.open()')
