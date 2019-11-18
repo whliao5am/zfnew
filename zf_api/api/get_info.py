@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from lxml import etree
 from bs4 import BeautifulSoup
 import re
 import pandas as pd
@@ -12,38 +11,89 @@ class GetInfo(object):
     def __init__(self, base_url, cookies):
         self.base_url = base_url
         self.headers = {
-            'Referer': 'http://jwc.xhu.edu.cn',
+            'Referer': base_url,
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36'
         }
         self.cookies = cookies
 
     def get_pinfo(self):
         """获取个人信息"""
+        url = self.base_url + '/xsxxxggl/xsxxwh_cxCkDgxsxx.html?gnmkdm=N100801'
+        res = requests.get(url, headers=self.headers, cookies=self.cookies)
+        jres = res.json()
+        res_dict = {
+            'name': jres['xm'],
+            'studentId': jres['xh'],
+            'brithday': jres['csrq'],
+            'idNumber': jres['zjhm'],
+            'candidateNumber': jres['ksh'],
+            'status': jres['xjztdm'],
+            'collegeName': jres['zsjg_id'],
+            'majorName': jres['zszyh_id'],
+            'className': jres['bh_id'],
+            'entryDate': jres['rxrq'],
+            'graduationSchool': jres['byzx'],
+            'domicile': jres['hkszd'],
+            'politicalStatus': jres['zzmmm'],
+            'national': jres['mzm'],
+            'education': jres['pyccdm'],
+            'postalCode': jres['yzbm']
+        }
+        return res_dict
 
     def get_notice(self):
         """获取通知"""
-        pass
+        url_0 = self.base_url + '/xtgl/index_cxNews.html?localeKey=zh_CN&gnmkdm=index'
+        url_1 = self.base_url + 'xtgl/index_cxAreaTwo.html?localeKey=zh_CN&gnmkdm=index'
+        res_list = []
+        url_list = []
 
-    def get_file(self):
-        """获取文件"""
-        pass
+        res_0 = requests.get(url_0, headers=self.headers, cookies=self.cookies)
+        res_1 = requests.get(url_1, headers=self.headers, cookies=self.cookies)
+        soup_0 = BeautifulSoup(res_0.text, 'lxml')
+        soup_1 = BeautifulSoup(res_1.text, 'lxml')
+        url_list += [i['href'] for i in soup_0.select('a[href^="/xtgl/"]')]
+        url_list += [i['href'] for i in soup_1.select('a[href^="/xtgl/"]')]
+
+        for u in url_list:
+            _res = requests.get(self.base_url + u, headers=self.headers, cookies=self.cookies)
+            _soup = BeautifulSoup(_res.text, 'lxml')
+            title = _soup.find(attrs={'class': 'text-center'}).string
+            info = [i.string for i in _soup.select_one('[class="text-center news_title1"]').find_all('span')]
+            publisher = re.search(r'：(.*)', info[0]).group(1)
+            ctime = re.search(r'：(.*)', info[1]).group(1)
+            vnum = re.search(r'：(.*)', info[2]).group(1)
+            detailed = _soup.find(attrs={'class': 'news_con'})
+            content = ''.join(list(detailed.strings))
+            doc_urls = [self.base_url + i['href'][2:] for i in detailed.select('a[href^=".."]')]
+            res_list.append({
+                'title': title,
+                'publisher': publisher,
+                'ctime': ctime,
+                'vnum': vnum,
+                'content': content,
+                'doc_urls': doc_urls
+            })
+        return res_list
 
     def get_message(self):
         """获取消息"""
         url = 'http://jwc.xhu.edu.cn/xtgl/index_cxDbsy.html?doType=query'
         data = {
-            'sfyy': '1',  # 是否已阅，未阅未1，已阅为2
+            'sfyy': '0',  # 是否已阅，未阅未1，已阅为2
             'flag': '1',
             '_search': 'false',
-            'nd': '1571744696313',
-            'queryModel.showCount': '50',  # 最多条数
+            'nd': int(time.time()*1000),
+            'queryModel.showCount': '1000',  # 最多条数
             'queryModel.currentPage': '1',  # 当前页数
             'queryModel.sortName': 'cjsj',
-            'queryModel.sortOrder': 'desc',  # 时间倒序
+            'queryModel.sortOrder': 'desc',  # 时间倒序, asc正序
             'time': '0'
         }
         res = requests.post(url, headers=self.headers, data=data, cookies=self.cookies)
-        return res
+        jres = res.json()
+        res_list = [{'message': i['xxnr'], 'ctime': i['cjsj']} for i in jres['items']]
+        return res_list
 
     def get_elective_list(self):
         """获取选课名单信息"""
