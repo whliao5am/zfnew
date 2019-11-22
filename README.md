@@ -1,6 +1,6 @@
 # 新版正方教务教务系统API
 一个有关新版正方教务管理系统（如下图展示的主页面即为新版教务系统）的API，可以实现教务系统内基础的查询功能，未来还会添加选课抢课，一键评价等功能。
-![主页]('doc/image/main_page.png')
+![主页]('./doc/image/main_page.png')
 
 ## 已实现与待实现
 * [x] 自动登陆、cookies获取
@@ -35,7 +35,7 @@ print(person.get_pinfo())
 如果能输出json形式的个人信息，说明运行成功。
 
 ## 详细API介绍
-**推荐直接结合调用例子：[examples]('https://github.com/NeroAsmarr/zfnew/tree/master/examples')**
+**推荐直接结合调用例子：**[examples]('https://github.com/NeroAsmarr/zfnew/tree/master/examples')
 
 ### Login类
 - 调用方法：`from zfnew import Login`
