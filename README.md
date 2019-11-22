@@ -76,7 +76,7 @@ print(person.get_pinfo())
         - term: 学期（1：第一学期，2：第二学期）
 
 #### 方法返回的json数据
-##### 1. get_pinfo 获取个人信息
+- get_pinfo 获取个人信息
 ```json
 {
   "name": "姓名",
@@ -97,7 +97,7 @@ print(person.get_pinfo())
   "postalCode": "邮政编码"
 }
 ```
-##### 2. get_notice 获取学校通知
+- get_notice 获取学校通知
 ```json
 [
   {
@@ -111,7 +111,7 @@ print(person.get_pinfo())
   "..."
 ]
 ```
-##### 3. get_message 获取调课、改课消息
+- get_message 获取调课、改课消息
 ```json
 [
   {
@@ -121,7 +121,7 @@ print(person.get_pinfo())
   "..."
 ]
 ```
-##### 4. get_grade 获取成绩
+- get_grade 获取成绩
 ```json
 {
   "name": "姓名",
@@ -149,7 +149,7 @@ print(person.get_pinfo())
     ]
 }
 ```
-##### 5. get_exam 获取考试信息
+- get_exam 获取考试信息
 ```json
 {
   "name": "姓名",
@@ -175,7 +175,7 @@ print(person.get_pinfo())
     ]
 }
 ```
-##### 6. get_schedule 获取课程表
+- get_schedule 获取课程表
 ```json
 {
   "name": "姓名",
