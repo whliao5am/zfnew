@@ -22,7 +22,16 @@
 * [ ] 选课名单
 
 ## 如何开始
-使用pip命令安装 `pip install zfnew`
+1. 使用pip命令安装 `pip install zfnew`
+
+2. 在[Pypi](https://pypi.org/project/zfnew/#files)下载包文件，然后
+
+   ```bash
+   tar -zxvf 包名.tar.gz
+   cd 包名
+   python setup.py build
+   python setup.py install
+   ```
 
 接着在python中运行如下代码验证：
 ```python
