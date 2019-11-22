@@ -178,18 +178,18 @@ class GetInfo(object):
             'normalCourse': [{
                 'courseTitle': i['kcmc'],
                 'teacher': i['xm'],
+                'courseId': i['kch_id'],
                 'courseSection': i['jc'],
                 'courseWeek': i['zcd'],
                 'campus': i['xqmc'],
                 'courseRoom': i['cdmc'],
-                'courseId': i['kch_id'],
                 'className': i['jxbmc'],
                 'hoursComposition': i['kcxszc'],
                 'weeklyHours': i['zhxs'],
                 'totalHours': i['zxs'],
                 'credit': i['xf']
             } for i in jres['kbList']],
-            'otherCourses': [{'info': i['qtkcgs']} for i in jres['sjkList']]}
+            'otherCourses': [i['qtkcgs'] for i in jres['sjkList']]}
         return res_dict
 
     # def get_classroom(self):

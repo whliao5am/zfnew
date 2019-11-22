@@ -11,7 +11,7 @@ from urllib import parse
 
 class Login(object):
     def __init__(self, base_url):
-        self.main_url = base_url
+        self.base_url = base_url
         self.key_url = parse.urljoin(base_url, '/xtgl/login_getPublicKey.html')
         self.login_url = parse.urljoin(base_url, '/xtgl/login_slogin.html')
         self.headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36',
