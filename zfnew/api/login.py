@@ -6,13 +6,14 @@ import requests
 from bs4 import BeautifulSoup
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP, PKCS1_v1_5
+from urllib import parse
 
 
 class Login(object):
-    def __init__(self):
-        self.main_url = 'http://jwc.xhu.edu.cn'
-        self.key_url = 'http://jwc.xhu.edu.cn/xtgl/login_getPublicKey.html'
-        self.login_url = 'http://jwc.xhu.edu.cn/xtgl/login_slogin.html'
+    def __init__(self, base_url):
+        self.main_url = base_url
+        self.key_url = parse.urljoin(base_url, '/xtgl/login_getPublicKey.html')
+        self.login_url = parse.urljoin(base_url, '/xtgl/login_slogin.html')
         self.headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36',
                         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
                         'Referer': self.login_url}
@@ -20,7 +21,7 @@ class Login(object):
         self.cookies = ''
         self.cookies_str = ''
 
-    def login(self):
+    def login(self, sid, password):
         """登陆"""
         req = self.sess.get(self.login_url, headers=self.headers)
         soup = BeautifulSoup(req.text, 'lxml')
@@ -29,10 +30,10 @@ class Login(object):
         res = self.sess.get(self.key_url, headers=self.headers).json()
         n = res['modulus']
         e = res['exponent']
-        hmm = self.get_rsa('liao787960', n, e)
+        hmm = self.get_rsa(password, n, e)
 
         login_data = {'csrftoken': tokens,
-                      'yhm': '3120170807112',
+                      'yhm': sid,
                       'mm': hmm,
                       'mm': hmm}
         self.sess.post(self.login_url, headers=self.headers, data=login_data)
