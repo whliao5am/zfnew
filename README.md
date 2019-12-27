@@ -1,4 +1,4 @@
-# 新版正方教务教务系统API
+#新版正方教务教务系统API
 
 **因为学校账号有限，如果有和自己学校系统不适配的地方，请提issues，我都会尽量解决。对于抢课和评价功能，如果有朋友的学校正在抢课或者评论，能提供自己的账号帮助项目的，可以将其发在我git主页的邮箱里，万分感谢🙏**
 
@@ -51,4 +51,4 @@ print(person.get_pinfo())
 如果能输出json形式的个人信息，说明运行成功。
 
 ## 详细API介绍
-**推荐直接结合调用例子：** [examples]('https://github.com/NeroAsmarr/zfnew/tree/master/examples')
+**推荐直接结合调用例子：** [examples]('/tree/master/examples')
