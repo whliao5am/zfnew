@@ -51,4 +51,4 @@ print(person.get_pinfo())
 如果能输出json形式的个人信息，说明运行成功。
 
 ## 详细API介绍
-**推荐直接结合调用例子：**[examples]('https://github.com/NeroAsmarr/zfnew/tree/master/examples')
+**推荐直接结合调用例子：** [examples]('https://github.com/NeroAsmarr/zfnew/tree/master/examples')
